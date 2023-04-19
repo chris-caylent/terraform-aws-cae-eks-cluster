@@ -23,5 +23,5 @@ service_accounts = {
 }
 
 # ArgoCD
-argocd_cert_arn = "arn:aws:acm:us-west-2:111111111111:certificate/43122ea8-e955-432c-90f6-22c77ce36e4c"
+argocd_cert_arn = "arn:aws:acm:us-west-2:XXXXXXXXXXX:certificate/43122ea8-e955-432c-90f6-22c77ce36e4c"
 argocd_values = "argocd-values.yaml"

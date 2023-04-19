@@ -31,7 +31,7 @@ data "aws_iam_policy_document" "cross-account-dns-trust" {
     sid    = "AllowCrossAccountDNSTrust"
     effect = "Allow"
     resources = [
-      "arn:aws:iam::457368161226:role/dns-manager"
+      "arn:aws:iam::XXXXXXXXXXX:role/dns-manager"
     ]
     actions = ["sts:AssumeRole"]
   }

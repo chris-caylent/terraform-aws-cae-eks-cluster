@@ -4,11 +4,11 @@ metadata:
   name: test-app-tls-cert
 spec:
   secretName: test-app-crt-secret
-  commonName: www.test-app.sbx.pyx-int.com
+  commonName: www.test-app.sbx.domain.com
   dnsNames:
-  - pyx-int.com
-  - sbx.pyx-int.com
-  - test-app.sandbox.pyx-int.com
+  - domain.com
+  - sbx.domain.com
+  - test-app.sandbox.domain.com
   duration: 2160h0m0s
   issuerRef:
     name: cert-manager-selfsigned

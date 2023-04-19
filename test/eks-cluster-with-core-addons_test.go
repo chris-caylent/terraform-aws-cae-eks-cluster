@@ -151,7 +151,7 @@ func TestEksWithCoreAddons(t *testing.T) {
 					// 	"cluster_name:" "terratest-eks"
 					// 	"contact": "cae-team@caylent.com"
 					// 	"environment": "sbx"
-					// 	"team": "tiger"
+					// 	"team": "caylent-team"
 					// 	"purpose": "terratest"
 					// },
 				}
@@ -171,7 +171,7 @@ func TestEksWithCoreAddons(t *testing.T) {
 								// 	"cluster_name:" "terratest-eks"
 								// 	"contact": "cae-team@caylent.com"
 								// 	"environment": "sbx"
-								// 	"team": "tiger"
+								// 	"team": "caylent-team"
 								// 	"purpose": "terratest"
 								// },
 								//BackendConfig: map[string]interface{}{
@@ -206,7 +206,7 @@ func TestEksWithCoreAddons(t *testing.T) {
 								// 	"cluster_name:" "terratest-eks"
 								// 	"contact": "cae-team@caylent.com"
 								// 	"environment": "sbx"
-								// 	"team": "tiger"
+								// 	"team": "caylent-team"
 								// 	"purpose": "terratest"
 								// },
 								Targets: []string{target},

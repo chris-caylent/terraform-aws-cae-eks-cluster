@@ -1,8 +1,43 @@
-variable "contact" {}
-variable "team" {}
-variable "environment" {}
-variable "purpose" {}
-variable "region" {}
+################################################################################
+# NAMING AND TAGGING
+################################################################################
+
+variable "region" {
+  type        = string
+  description = "The default region for the test."
+  default     = "us-west-2"
+}
+
+variable "contact" {
+  type        = string
+  description = "The contact for tagging"
+  default     = "cae-team@caylent.com"
+}
+
+variable "environment" {
+  type        = string
+  description = "The environment for the text (sbx, dev, qa, etc)"
+  default     = "sbx"
+}
+
+variable "team" {
+  type        = string
+  description = "The team, used for tagging."
+  default     = "caylent-team"
+}
+
+variable "purpose" {
+  type        = string
+  description = "The purpose of this resource, used for tagging"
+  default     = "terratest"
+}
+
+variable "tags" {
+  description = "Resource tags"
+  type        = map(any)
+  default     = {}
+}
+
 variable "cluster_name" {}
 
 variable "eks_cluster_id" {
@@ -423,7 +458,7 @@ variable "enable_app_2048" {
 
 #-------Define ArgoCD Managed apps---#
 
-variable "dc_api_workload" {
+variable "workload" {
   type        = any
   description = "Map of Application manifest values to pass to ArgoCD"
   default     = {}
@@ -445,7 +480,7 @@ variable "certificate_name" {
 variable "certificate_dns" {
   type        = string
   description = "CommonName used in the Certificate, usually DNS"
-  default     = "pyx-int.com"
+  default     = "test-domain.com"
 }
 
 variable "cert_manager_helm_config" {
