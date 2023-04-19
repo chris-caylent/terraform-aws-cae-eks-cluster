@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nlb-tls-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nlb-tls-app
+  template:
+    metadata:
+      labels:
+        app: nlb-tls-app
+    spec:
+      containers:
+        - name: nlb-tls-app
+          image: nginxdemos/nginx-hello:plain-text
+          ports:
+            - containerPort: 8443
+          volumeMounts:
+            - name: secret
+              mountPath: /etc/nginx/ssl
+              readOnly: true
+            - name: config-volume
+              mountPath: /etc/nginx/conf.d
+      volumes:
+        - name: secret
+          secret:
+            secretName: test-app-crt-secret
+        - name: config-volume
+          configMap:
+            name: secure-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nlb-tls-app
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb-ip"
+    service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: "*"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+spec:
+  ports:
+    - port: 443
+      targetPort: 8443
+      protocol: TCP
+      name: https
+  selector:
+    app: nlb-tls-app
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: secure-config
+data:
+  app.conf: |-
+    server {
+      listen 8443 ssl proxy_protocol;
+      real_ip_header proxy_protocol;
+      set_real_ip_from 10.0.0.0/16;
+      server_name <nlb_dns_name_goes_here>;
+
+      ssl_certificate /etc/nginx/ssl/tls.crt;
+      ssl_certificate_key /etc/nginx/ssl/tls.key;
+
+      default_type text/plain;
+
+      location / {
+        return 200 "hello from pod $hostname\n";
+      }
+    }

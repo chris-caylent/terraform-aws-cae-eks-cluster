@@ -1,0 +1,22 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: test-app-tls-cert
+spec:
+  secretName: test-app-crt-secret
+  commonName: www.test-app.sbx.pyx-int.com
+  dnsNames:
+  - pyx-int.com
+  - sbx.pyx-int.com
+  - test-app.sandbox.pyx-int.com
+  duration: 2160h0m0s
+  issuerRef:
+    name: cert-manager-selfsigned
+    # We can reference ClusterIssuers by changing the kind here.
+    # The default value is Issuer (i.e. a locally namespaced Issuer)
+    kind: ClusterIssuer
+    group: cert-manager.io
+  renewBefore: 360h0m0s
+  privateKey:
+    algorithm: "RSA"
+    size: 2048  
