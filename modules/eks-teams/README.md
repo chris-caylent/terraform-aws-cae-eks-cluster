@@ -87,9 +87,9 @@ To create an `Platform Team` for your cluster, simply use `platform_teams`. You 
 
 ```hcl
   platform_teams = {
-    tiger-team = {
+    platform_team = {
       users = [
-        "arn:aws:iam::{account_id}:role/tiger-admin-role"
+        "arn:aws:iam::{account_id}:role/platform-admin-role"
       ]
     }
   }

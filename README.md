@@ -8,23 +8,265 @@ This module provisions additional resources to assemble a fully functional EKS c
 - Teams (platform and application)
 - AWS auth configmaps for approriate user permissions.
 
-## Examples
+## Requisites
 
-- [eks-cluster-with-core-addons](./examples/eks-cluster-with-core-addons/)
+- [tfenv](https://github.com/tfutils/tfenv) - This is used in order to manage different Terraform versions
+- [terraform-docs](https://github.com/segmentio/terraform-docs) - This is used in our pre-commit hook in order to generate documentation from Terraform modules in various output formats.
+- [pre-commit](https://pre-commit.com/#install)-configuration to run code standardization (terraform fmt) and documentation (terraform docs) automation on `git commit`
+- [Granted](https://docs.commonfate.io/granted/getting-started) (optional) - tooling to help assume your SSO role into an AWS account
+- Public cloud provider access credentials (if not using Granted)
 
-## Initial Deployment
+---------------------
+
+## Prerequisites
+
+This codebase uses the following Terraform and Golang versions.  Code has not be tested and verified to work with any other versions other than what is listed below:
+
+- Terraform: 1.2.0
+- Go: 1.18
+
+### Installation Steps (MacOS)
+
+```sh
+brew install pre-commit gawk terraform-docs coreutils tfenv awscli jq cfn-lint
+```
+
+### **tfenv**
+
+---------------------
+
+##### List current Terraform versions installed on your system
+
+```sh
+tfenv list
+```
+
+##### Install a specific version of Terraform
+
+```sh
+tfenv install 1.2.0
+```
+
+##### Select Terraform version to be used, this could be used to switch between versions
+
+```sh
+tfenv use 1.2.0
+```
+
+### **pre-commit**
+
+---------------------
+
+#### Pre-Commit Usage
+
+- [Pre-Commit documentation](https://pre-commit.com/)
+- [Hook documentation](https://github.com/antonbabenko/pre-commit-terraform)
+
+You must `git add .` your files before the pre-commit hook will run against them.
+
+##### Check the version
+
+```sh
+pre-commit --version
+```
+
+##### Install the git hook scripts
+
+```sh
+pre-commit install
+```
+
+##### Run against all files (`git add` must be run first)
+
+```sh
+pre-commit run -a
+```
+
+## Authenticate to AWS environments with Granted (Optional)
+
+---------------------
+
+Below are steps to ensure easy access to AWS environments by assuming your SSO role with [Granted](https://docs.commonfate.io/granted/getting-started)
+
+```sh
+# install with Homebrew
+brew tap common-fate/granted
+brew install granted
+
+# verify installation
+➜ granted -v
+
+Granted v0.3.0
+```
+
+### **Setup your AWS profile**
+
+Follow the steps as outlined by executing the command in your terminal: `aws configure sso`
+
+```sh
+aws configure sso
+> SSO start URL [None]: <Start URL> (the redirect URL after you login to AWS Control Tower through an SSO provider)
+> SSO Region: us-west-2
+
+# after the above values are entered your browser will open to and have you confirm
+# a few prompts.  Allow the authorize request.
+
+#When successful, you will see a "Request Approved" AWS Modal in your browser tab.
+
+# Go back to the Terminal session to finish the prompts
+
+# Pick the account to which you wish to create a profile, you may also see all accounts to which you have access.
+
+# Pick your assigned role, this will vary based on your organization
+# Default CLI region: us-west-2
+# Output format: JSON
+
+# CLI Profile name: you can keep what is generated (not recommended) or use something explicit to the environment, like "shared-services-admin"
+
+```
+
+Test your credentials
+
+```sh
+$ assume
+ Please select the profile you would like to assume:  [Use arrows to move, type to filter]
+> shared-services-admin (this is the profile you created in the previous step)
+
+# You will then see a message like: 
+[shared-services-admin](us-west-2) session credentials will expire 2022-09-27 14:15:48 -0400 EDT
+>
+
+# check to be sure you can query sts and receive your assume role arn back
+$ aws sts get-caller-identiy
+> 
+{
+    "UserId": "(redacted):chris.gonzalez@caylent.com",
+    "Account": "1111111111",
+    "Arn": "arn:aws:sts::1111111111:assumed-role/AWSReservedSSO_AWSPowerUserAccess_(redacted)/chris.gonzalez@caylent.com"
+}
+
+# if the above commands are successful, then you can now use Terraform or Run terrestest from your local machine
+```
+
+#### **Go**
+
+---------------------
+
+```sh
+
+# Update and Install Go (for a specfic version, append @{version}, like `brew install golang@1.18`)
+brew update && brew install go@1.18
+
+# Following Go best practices, create 3 new directories ($HOME/go/bin, $HOME/go/src, $HOME/go/pkg)
+mkdir -p $HOME/go/{bin,src,pkg}
+
+# Set important environment variables
+# Add the below to your .bashrc, or .zshrc
+export GOPATH=$HOME/go
+export GOROOT="$(brew --prefix golang)/libexec"
+export PATH="$PATH:${GOPATH}/bin:${GOROOT}/bin"
+
+# If you're on an M1 mac, make Go play nicely with Rosetta
+export GODEBUG=asyncpreemptoff=1
+
+# source your shell
+source $HOME/.bashrc (or .zshrc)
+```
+
+## **Terratest - Recommended Test Practices**
+
+---------------------
+
+## Use table driven tests
+
+- These tests are a fairly standard practice
+- They let you clearly and easily create multiple test-cases for a single test
+- They are defined as an array of structs, where fields of the struct are variables for each test case
+
+## When defining essential variables, **USE** hard-coded fixed fields
+
+- Repository examples should hard-code fixed fields, which are essential to the spirit of the example
+
+## When defining field variables to be tested, **DO NOT USE** use hard-coded fixed fields
+
+- Repository examples should use variables for fields which are to be tested (i.e., so that they can be fed in via terratest)
+
+## Useful packages
+
+- [testify/assert library](https://github.com/stretchr/testify/assert) -- assertion library to assert test results against expected fields
+- [aws api helper library](https://github.com/gruntwork-io/terratest/modules/aws) -- library to help us query the AWS API directly
+
+## Helpful terminal commands
+
+_You must be authenticated to the target AWS account before executing the below commands_
+
+```sh
+# run all tests cases with no verbose output (not recommended, as you can't see errors)
+go test
+
+# apply verbose output and extend the timeout past the default of 10m (helpful for tests that need longer to run -- like AWS RDS examples)
+go test -v -timeout 30m
+
+# run a single test, be sure the test case matches the regex TestSimpleDynamoDb
+to test run TestSimpleDynamoDb
+
+# print the test output to a file
+go test -v -timeout 30m | tee ~/Desktop/module_terratest_output.txt
+
+# use a make file to document the test output for longer tests (optional)
+make test | tee ~/Desktop/module_terratest_output.txt
+```
+
+#### Supporting Documentation
+
+- [Terratest documentation](https://terratest.gruntwork.io/docs/#getting-started)
+
+
+### **Terraform**
+
+---------------------
+
+Prerequisites:
+
+- You can successfully authenticate to AWS via CLI using Granted or your preferred method of authentication.
+- You have the correct version of Terraform installed through `tfenv`
+
+When developing modules, it is easier to run these commands from your example directory where you have already defined an example for your tests to run against.
+
+Navigate to the directory where you would like to run your terraform configuration, authenticate to AWS through the CLI (optionally through Granted)
 
 ```hcl
-terraform apply -auto-approve -var-file varfile.tfvars
+terraform init (install modules, both local and external)
+terraform validate (validate your configuration will not error before the plan/apply stage)
+terraform plan (check what you're going to provision)
+terraform apply (deploy the infrastructure)
+terraform destroy (destroy the infrastructure)
+```
+
+## Initial Deployment and Validation
+
+Before you begin, be sure you have appropriate external configurations in place such as AWS Secrets Manager Secrets and any IAM roles are users needed by this configuration.
+
+The commands below assume you are simply testing the example configuration and are using only a local backend for tfstate.
+
+```hcl
+
+terraform init
+
+terraform validate
+
+terraform plan -var-file fixtures.us-west-2.tfvars
+
+terraform apply -var-file varfile.tfvars
 ```
 
 Be sure to destroy resources in the reverse order (in development settings only):
 
 ```hcl
-terraform destroy -auto-approve -target module.addons -var-file varfile.tfvars
-terraform destroy -auto-approve -target module.eks_cluster -var-file varfile.tfvars
-terraform destroy -auto-approve -target module.vpc -var-file varfile.tfvars
-terraform destroy -auto-approve -var-file varfile.tfvars
+terraform destroy -target module.addons -var-file varfile.tfvars
+terraform destroy -target module.eks_cluster -var-file varfile.tfvars
+terraform destroy -target module.vpc -var-file varfile.tfvars
+terraform destroy -target -var-file varfile.tfvars
 ```
 
 ## Usage
@@ -83,16 +325,17 @@ module "addons" {
   # enable the argocd addon
   enable_argocd = true
   argocd_applications = {
-    workload = local.
-    #workloads = local.workload_application
+    workload_app_1 = var.workload
   }
 
-
   argocd_helm_config = {
+    values = [templatefile("${path.module}/helm-values/argocd/${var.argocd_values}", {
+        argocd_cert_arn = jsonencode(var.argocd_cert_arn)
+      })]
   }
 
   # let argo cd manage the addons
-  argocd_manage_add_ons = true
+  argocd_manage_add_ons = false
 
   # EKS Managed Add-ons
   enable_amazon_eks_vpc_cni           = true
@@ -101,18 +344,23 @@ module "addons" {
   enable_aws_load_balancer_controller = true
   enable_aws_cloudwatch_metrics       = true
 
-  # Add-ons
-  # enable_metrics_server               = true
+  enable_secrets_store_csi_driver              = true
+  enable_secrets_store_csi_driver_provider_aws = true
+
+  enable_cert_manager            = false
+  cert_manager_irsa_policies     = [aws_iam_policy.cert-manager-cross-account.arn] 
+  
 
   tags = local.tags
 }
+
 
 ################################################################################
 # Supporting resources -- VPC
 ################################################################################
 
 module "vpc" {
-  source = "../../modules/vpc"
+  source = "../../modules/vpc" # not implemented in this module
 
   name        = local.name
   contact     = var.contact
@@ -172,9 +420,12 @@ resource "aws_security_group" "vpc_tls" {
 }
 ```
 
+## Examples
+
+- [eks-example-cluster](./examples/eks-example-cluster/)
 ## Secrets
 
-AWS Secrets manager is used to store git repository credentials so that ArgoCD can automatically set up applications.  Before deploying anything related to ArgoCD, you must have secret created with the keys `USERNAME` and `PASSWORD`.  This will allow ArgoCD to authenticate to Codecommit using the access credentials of the gitlab-to-aws-user already in each AWS account.
+AWS Secrets manager is used to store git repository credentials so that ArgoCD can automatically set up applications.  Before deploying anything related to ArgoCD, you must have secret created with the keys `USERNAME` and `PASSWORD`.  This will allow ArgoCD to authenticate to Codecommit (or a private repo of your choosing) using the access credentials of an IAM user already in your AWS account.
 
 ## Automated ArgoCD application setup
 
@@ -198,9 +449,9 @@ app-1 = {
 module "addons" {
   ...omitted for brevity
   argocd_applications = {
-    app-1   = var.app-1
-    app-2   = var.app-2
-    app-3   = var.app-3
+    app-1 = var.app-1
+    app-2 = var.app-2
+    app-3 = var.app-3
   }
 
 ```
@@ -232,6 +483,18 @@ Login to the UI:
 
 - Username: admin
 - Password: the result of the query above.
+
+## Terratest
+
+An example Terratest is provided in `/test/eks-example-cluster_test.go`
+
+In order to run the test you must have the Go programming language binaries installed on your local machine.
+
+Test commands:
+
+```sh
+
+```
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -258,7 +521,7 @@ Login to the UI:
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_eks_core"></a> [eks\_core](#module\_eks\_core) | git::ssh://git@git.perceptyx.com:/tiger-team/terraform-aws-pyx-eks-core.git | v1.0.0 |
+| <a name="module_eks_core"></a> [eks\_core](#module\_eks\_core) | ./modules/eks-core | n/a |
 | <a name="module_eks_managed_node_group"></a> [eks\_managed\_node\_group](#module\_eks\_managed\_node\_group) | ./modules/managed-node-group | n/a |
 | <a name="module_eks_teams"></a> [eks\_teams](#module\_eks\_teams) | ./modules/eks-teams | n/a |
 | <a name="module_kms"></a> [kms](#module\_kms) | ./modules/kms | n/a |

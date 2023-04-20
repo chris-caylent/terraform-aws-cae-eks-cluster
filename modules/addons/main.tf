@@ -75,7 +75,7 @@ module "aws_kube_proxy" {
 module "csi_secrets_store_provider_aws" {
   count             = var.enable_secrets_store_csi_driver_provider_aws ? 1 : 0
   source            = "./csi-secrets-store-provider-aws"
-  helm_config        = var.csi_secrets_store_provider_aws_helm_config
+  helm_config       = var.csi_secrets_store_provider_aws_helm_config
   manage_via_gitops = var.argocd_manage_add_ons
   addon_context     = local.addon_context
 }
@@ -138,7 +138,7 @@ module "aws_load_balancer_controller" {
 module "coredns_autoscaler" {
   count             = var.enable_amazon_eks_coredns && var.enable_coredns_autoscaler && length(var.coredns_autoscaler_helm_config) > 0 ? 1 : 0
   source            = "./cluster-proportional-autoscaler"
-  helm_config        = var.coredns_autoscaler_helm_config
+  helm_config       = var.coredns_autoscaler_helm_config
   manage_via_gitops = var.argocd_manage_add_ons
   addon_context     = local.addon_context
 }
@@ -172,7 +172,7 @@ module "coredns_autoscaler" {
 module "metrics_server" {
   count             = var.enable_metrics_server ? 1 : 0
   source            = "./metrics-server"
-  helm_config        = var.metrics_server_helm_config
+  helm_config       = var.metrics_server_helm_config
   manage_via_gitops = var.argocd_manage_add_ons
   addon_context     = local.addon_context
 }
@@ -180,7 +180,7 @@ module "metrics_server" {
 module "datadog_agent" {
   count             = var.enable_datadog_agent ? 1 : 0
   source            = "./datadog"
-  helm_config        = var.datadog_agent_helm_config
+  helm_config       = var.datadog_agent_helm_config
   manage_via_gitops = var.argocd_manage_add_ons
   addon_context     = local.addon_context
 }
@@ -188,7 +188,7 @@ module "datadog_agent" {
 module "splunk" {
   count             = var.enable_splunk_logging ? 1 : 0
   source            = "./splunk"
-  helm_config        = var.splunk_helm_config
+  helm_config       = var.splunk_helm_config
   manage_via_gitops = var.argocd_manage_add_ons
   addon_context     = local.addon_context
 }
@@ -196,7 +196,7 @@ module "splunk" {
 module "cert_manager" {
   count                             = var.enable_cert_manager ? 1 : 0
   source                            = "./cert-manager"
-  helm_config                        = var.cert_manager_helm_config
+  helm_config                       = var.cert_manager_helm_config
   manage_via_gitops                 = var.argocd_manage_add_ons
   irsa_policies                     = var.cert_manager_irsa_policies
   addon_context                     = local.addon_context
@@ -209,7 +209,7 @@ module "cert_manager" {
 module "cert_manager_csi_driver" {
   count             = var.enable_cert_manager_csi_driver ? 1 : 0
   source            = "./cert-manager-csi-driver"
-  helm_config        = var.cert_manager_csi_driver_helm_config
+  helm_config       = var.cert_manager_csi_driver_helm_config
   manage_via_gitops = var.argocd_manage_add_ons
   addon_context     = local.addon_context
 }

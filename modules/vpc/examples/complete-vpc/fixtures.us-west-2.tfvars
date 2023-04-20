@@ -1,0 +1,5 @@
+region      = "us-west-2"
+environment = "sbx"
+team        = "caylent"
+purpose     = "terratest"
+contact     = "cae-team@caylent.com"

@@ -23,13 +23,13 @@ data "aws_iam_policy_document" "cert_manager_iam_policy_document" {
       ]
     }
   }
-  
+
   statement {
     effect    = "Allow"
     resources = ["arn:aws:route53:::hostedzone/*"]
-    actions   = [
+    actions = [
       "route53:ChangeResourceRecordSets",
-      "route53:ListResourceRecordSets"]
+    "route53:ListResourceRecordSets"]
   }
 
 
