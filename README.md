@@ -8,7 +8,7 @@ This module provisions additional resources to assemble a fully functional EKS c
 - Teams (platform and application)
 - AWS auth configmaps for approriate user permissions.
 
-## Requisites
+## Requirements
 
 - [tfenv](https://github.com/tfutils/tfenv) - This is used in order to manage different Terraform versions
 - [terraform-docs](https://github.com/segmentio/terraform-docs) - This is used in our pre-commit hook in order to generate documentation from Terraform modules in various output formats.
@@ -208,13 +208,10 @@ go test
 go test -v -timeout 30m
 
 # run a single test, be sure the test case matches the regex TestSimpleDynamoDb
-to test run TestSimpleDynamoDb
+to test run eks-example-cluster
 
 # print the test output to a file
 go test -v -timeout 30m | tee ~/Desktop/module_terratest_output.txt
-
-# use a make file to document the test output for longer tests (optional)
-make test | tee ~/Desktop/module_terratest_output.txt
 ```
 
 #### Supporting Documentation
@@ -360,7 +357,7 @@ module "addons" {
 ################################################################################
 
 module "vpc" {
-  source = "../../modules/vpc" # not implemented in this module
+  source = "./modules/vpc"
 
   name        = local.name
   contact     = var.contact
