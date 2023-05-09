@@ -25,10 +25,10 @@ To overcome this limitation, you can add/enable `manifests_dir` after you applie
 
   application_teams = {
     # First Team
-    team-dc = {
+    team-blue = {
       "labels" = {
-        "appName"     = "dc-api",
-        "projectName" = "data-collector",
+        "appName"     = "blue-api",
+        "projectName" = "blue-api-project",
         "environment" = "sandbox",
       }
       "quota" = {
@@ -40,15 +40,15 @@ To overcome this limitation, you can add/enable `manifests_dir` after you applie
         "secrets"         = "10",
         "services"        = "10"
       }
-      manifests_dir = "./dc_manifests"
+      manifests_dir = "./blue_manifests"
       # Belows are examples of IAM users and roles
       users = [
-        "arn:aws:iam::{account_id}:role/dc-sbx-sso-iam-role"
+        "arn:aws:iam::{account_id}:role/blue-sbx-sso-iam-role"
       ]
     }
 
     # Second Team
-    team-analyze = {
+    team-red = {
       "labels" = {
         "appName"     = "example2",
         "projectName" = "example2",
@@ -62,9 +62,9 @@ To overcome this limitation, you can add/enable `manifests_dir` after you applie
         "secrets"         = "20",
         "services"        = "20"
       }
-      manifests_dir = "./analyze_manifests"
+      manifests_dir = "./red_manifests"
       users = [
-        "arn:aws:iam::{account_id}:role/sense-sbx-sso-iam-role"
+        "arn:aws:iam::{account_id}:role/red-sbx-sso-iam-role"
       ]
     }
   }
