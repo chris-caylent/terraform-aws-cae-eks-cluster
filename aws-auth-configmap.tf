@@ -1,6 +1,8 @@
-resource "kubernetes_config_map" "aws_auth" {
+# kubernetes_config_map will fail because the configmap already exists
+resource "kubernetes_config_map_v1_data" "aws_auth" {
   count = var.create_eks ? 1 : 0
-
+  # By using force, we overwrite the keys
+  force = true
   metadata {
     name      = "aws-auth"
     namespace = "kube-system"
